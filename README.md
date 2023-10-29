@@ -1,1 +1,191 @@
 # ndr5027.github.io
+# Arch Linux Install
+## _Report by Noah Ralston_
+
+This report is designed to assist anyone in learning how to install Arch Linux on a virtual machine. It also serves as a backlog of issues that I had while installing, as well as the steps taken to combat said issues.
+
+## Step 0: VMWare
+Not sure if this is necessary as a step, but you need something to put your Arch Linux distrbution on, and I know I don't want to put it directly onto my laptop, so VMWare it is. I installed VMWare (I won't go into specifics, it is fairly "click-through"), and made sure it was ready to use.
+
+## Step 1: Installing the ISO:
+Here is where we get to the meat of the project. The iso is the file that the VM uses to run Arch Linux, so it is pretty important. Here's what I did to install it:
+
+1. Go to the [ArchWiki download page](https://archlinux.org/download/)
+2. Download the iso from the ACM website found further down the page, or right [here](acm.wpi.edu)
+3. Open VMWare and select "Create a New Virtual Machine"
+4. Select the typical option and click next
+5. Select installer disk image file (iso), click browse, and select the iso file that you just downloaded, and click next
+6. Select Linux as your guest operating system, and select Other Linux 5.x kernel 64-bit as the version. Click next
+7. Set the name to whatever you desire (I went with ArchLinux) and click next
+8. Give the disk a minimum size of 20 GB, and click next
+9. Click customise hardware, and on the memory screen, change the memory to 2 GB.
+10. Close the customise hardware menu and click finish.
+
+## Step 2: Setting up Arch Linux
+Now that the VM has been set up, we need to make sure that the system is ready for use. Here's what you need to do:
+1. Power on the virtual machine in VMWare
+2. Linux will opt to set itself up if you are too busy trying to figure out what to type
+3. Set up the VM to boot in UEFI mode by accessing the .vmx file in the file explorer, and changing the second line to:
+```sh
+firmware="efi"
+```
+4. Make sure that your internet connection works by pinging a website. You can use:
+```sh
+ping google.com
+```
+If you get a response, your internet connection works
+5. Set up the clock by using the following commands. The first is used to determine your timezone, then the second is used to set it.
+```sh
+timedatectl list-timezones
+timedatectl set-timezone [TIMEZONE]
+```
+
+## Step 3: Partitioning
+We have the basics set up. Now we need to partition the disk.
+1. Since we want to partition the sda disk, we will run the command:
+```sh
+cfdisk /dev/sda
+```
+2. Since our disk isn't greater than 2 terrabytes, we will select the dos label type
+3. Select new to create a new partition. Give it the size 128M, and make it primary.
+4. Press "b" to set the boot flag on this partition.
+5. Create a second partition with the remiander of the memory for the rest of the system. Make this partition primary as well.
+6. Select "write" and type "yes" to write your changes.
+7. Quit out of cfdisk
+8. Type the command
+```sh
+mkfs.ext4 /dev/sda1
+mkfs.ext4 /dev/sda2
+```
+to format the partitions as ext4
+9. Now we mount the partition by using the commands:
+```sh
+mount /dev/sda2 /mnt
+mkdir /mnt/boot
+mount /dev.sda1 /mnt/boot
+```
+
+## Finishing the Instsallation
+We will use the pacstrap command to finish up our installation
+
+1. Run the command:
+```sh
+pacstrap /mnt base base-devel linux linux-firmware vim
+```
+Note that this portion may take some time depending on your internet.
+
+2. Make a fstab by running the command:
+```sh
+genfstab -U /mnt >> /mnt/etc/fstab
+```
+3. Chroot into the Arch Installation by using the command:
+```sh
+arch-chroot /mnt /bin/bash
+```
+4. Use the pacman command to install grub and networkmanager:
+```sh
+pacman -S networkmanager grub
+```
+5. Set the network manager to start after boot by using the command:
+```sh
+systemctl enable NetworkManager
+```
+6. Configure grub to know what to boot by using the commands:
+```sh
+grub-install /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+7. Set a password for thee root user using passwd
+8. Generate your locale by using:
+```sh
+vim /etc/locale.gen
+```
+Uncomment the en_US.UTF and en_US.ISO lines in the file. Then, run
+```sh
+locale-gen
+vim /etc/locale.conf
+```
+and type LANG=en-US.UTF-8
+9. Set up your host name using
+```sh
+vim /etc/hostname
+```
+and change the first line to what ever name you want. (Don't forget to :wq after editing any file)
+10. Link the correct timezone by using the command
+```sh
+ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime 
+```
+Note: You should input your own timezone
+
+11. Exit using the exit command
+Note: during this time, I had an issue exiting because I had jobs that were running in the background. I used ctrl+d to stop those processes
+
+12. Unmount root and boot using:
+```sh
+umount -R /mnt
+reboot
+```
+
+13. Log into archlinux using the password that you set root to earlier.
+14. Install and run neofetch using:
+```sh
+pacman -S neofetch
+neofetch
+```
+
+## Step 5. Desktop Environment
+We are going to want Arch to look much better than it does now. We can do so by installing a desktop environment. I decided to use GNOME
+
+1. Prepare by updating your packages using the command:
+```sh
+pacman -Syu
+```
+Note: I didn't need to do this since I had a fresh install, but I decided to play it safe anyways.
+
+2. Install all of the GNOME packages by using the command:
+```sh
+pacman -S xorg gnome gnome-extra gdm
+```
+3. Select the default setting for each setting, unless you want to customize
+Note: This is quite a large download, and will likely take some time to complete
+4. Run the command:
+```sh
+systemctl enable gdm
+```
+to start the display manager
+5. Reboot the system using reboot
+
+## Step 6: Add a User
+Adding a user in GNOME is easy
+1. Click on the top right corner of the window
+2. Scroll down the settings page and click on users
+3. Select "Add User"
+4. Give the user a username and password
+5. Select the admin slider if the user should be an admin
+
+## Step 7: Installing a shell
+While GNOME comes with a shell, we can flex our installation skill by installing another one. I will be installing KornShell in this example
+
+1. Click the top left of the desktop
+2. In the search bar, look for "console" and open it
+3. Use the command:
+```sh
+pacman -S ksh
+```
+Now you have another shell instsalled for use at a later time
+
+## Step 8: Colorizing the terminal
+GNOME has built in color changing for the terminal. Here is how it can be accessed.
+Note: I had an issue accessing the terminal. The fix I found was to change the language to english on the system, log out, and log back in
+1. Go to the search bar like before and search terminal
+2. Click the three bars on the top right of the window and click preferences
+3. Add a profile and edit it
+4. Go to the color section at the top of the page to adjust colors
+
+##Step 9: Creating an alias
+Creating and using ana lias can save time. Since I tend to use the clear command a bunch, I made an alias to do it just by typing "c". Here is how to do it
+
+1. Type the command
+```sh
+alias c='clear'
+```
