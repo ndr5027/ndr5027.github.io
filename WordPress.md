@@ -52,7 +52,7 @@ touch docker-compose.yml
 ```sh
 nano docker-compose.yml
 ```
-5. Past in the yml file:
+5. Paset in the yml file:
 ```sh
 version: "3" 
 # Defines which compose version to use
@@ -96,7 +96,7 @@ All that is left to do is finish the installation on the internet
 
 And there you go! WordPress has now been installed! Below you will find some photos of what it looks like at the end of the process:
 
-!(ndr5027.github.io
+![image](ndr5027.github.io
 /WordpressDockerInstall1.png)
-!(ndr5027.github.io
+![image](ndr5027.github.io
 /WordpressDockerInstall2.png)
