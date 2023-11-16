@@ -52,7 +52,7 @@ touch docker-compose.yml
 ```sh
 nano docker-compose.yml
 ```
-5. Paset in the yml file:
+5. Paste in the yml file:
 ```sh
 version: "3" 
 # Defines which compose version to use
