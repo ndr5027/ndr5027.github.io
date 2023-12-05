@@ -129,7 +129,7 @@ Below you will find the screenshots of the required work
 Before using the tunnel on mobile
 ![image](IPLeakPhone2.jpg)
 After using the tunnel on mobile
-![image](ipleak1.jpg)
+![image](ipleak1.png)
 Before using the tunnel on PC
-![image](ipleak2.jpg)
+![image](ipleak2.png)
 After using the tunnel on PC
